@@ -1,0 +1,88 @@
+{% extends 'public_base_top_nav.html' %}
+
+{% block title %}
+    ADMIN LOGIN
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <!-- jinjacode flash message form flask-->
+    {% with messages = get_flashed_messages(with_categories=true)%}
+        {%if messages%}
+            {%for category, message in messages%}
+            <!-- sweet alert error-->
+                {%if category =='login_error'%}
+                    <div id="myAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                <!-- sweet alert success-->
+                {%else%}
+                <div id="myAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{message}}
+                    <button type="button" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                {%endif%}
+            {%endfor%}
+        {%endif%}
+    {% endwith %}
+    </div>
+    
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">ADMIN LOGIN</div>
+                    <div class="card-body">
+
+                        <form method="POST">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" name="password" id="password" placeholder="Enter Password">
+                            </div>
+                            <br/>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+    <script>
+        //id only can enter number script
+        function filterNonNumeric(event) {
+            var charCode = event.keyCode || event.which;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                event.preventDefault();
+            }
+        }
+         //SWEET ALERT script
+        document.addEventListener('DOMContentLoaded', function () {
+            var closeButton = document.querySelector('#myAlert .close');
+            closeButton.addEventListener('click', function () {
+                var alert = document.querySelector('#myAlert');
+                alert.remove();
+            });
+        });
+    
+     //hide and unhide password
+        document.getElementById('showPasswordBtn').addEventListener('click', function () {
+            var passwordInput = document.getElementById('password');
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+
+    </script>
+{% endblock %}

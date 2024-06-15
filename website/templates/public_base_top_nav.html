@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap5.3/css/bootstrap.min.css') }}">
+    <link href="{{ url_for('static', filename='fontawesome-free-6.5.2-web/css/all.min.css') }}" rel="stylesheet">
+
+    
+    
+</head>
+
+<body>
+    <nav id="pub_nav" class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <h7><b>DTC</b></h7> <i class="fa-solid fa-school"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">More</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('admin_auth.admin_login') }}">ADMIN-Login</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  <!-- Main content -->
+    {% block content %}
+
+    {% endblock %}
+  <!-- Bootstrap JS (Optional) -->
+  <script src="{{ url_for('static', filename='bootstrap5.3/js/bootstrap.bundle.min.js') }}"></script>
+
+    <style>
+        #pub_nav.navbar {
+            background-color: #a81b51 !important;
+        }
+        
+        </style>
+
+</body>
+
+</html>

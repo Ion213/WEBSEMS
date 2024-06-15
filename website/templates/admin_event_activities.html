@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        ion
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap5.3/css/bootstrap.min.css') }}">
+    <link href="{{ url_for('static', filename='fontawesome-free-6.5.2-web/css/all.min.css') }}" rel="stylesheet">
+
+    
+    
+</head>
+
+<body>
+
+
+    
+<div>
+    <!-- jinjacode flash message form flask-->
+    {% with messages = get_flashed_messages(with_categories=true)%}
+        {%if messages%}
+            {%for category, message in messages%}
+            <!-- sweet alert error-->
+                {%if category =='manage_activity_error'%}
+                    <div id="myAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                <!-- sweet alert success-->
+                {% else %}
+                    <div id="myAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="container mt-5">
+
+    <div class="table-responsive">
+        <h1>All Activities in {{event.event_name}}</h1>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Activity Name</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Fines</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    <td>{{ activity.activity_name }}</td>
+                    <td>{{ activity.scheduled_start_time.strftime('%H:%M') }}</td>
+                    <td>{{ activity.scheduled_end_time.strftime('%H:%M') }}</td>
+                    <td>{{ activity.fines }}</td>
+                    <td>                        
+                        <form action="{{ url_for('admin_manage_activities.delete_event_activity', activity_id=activity.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Add Activity</h2>
+        <form method="POST"">
+            <div class="mb-3">
+                <label for="activity_name" class="form-label">Activity Name</label>
+                <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="activity_start_time" class="form-label">Start Time</label>
+                <input type="time" class="form-control" id="activity_start_time" name="activity_start_time" required>
+            </div>
+            <div class="mb-3">
+                <label for="activity_end_time" class="form-label">End Time</label>
+                <input type="time" class="form-control" id="activity_end_time" name="activity_end_time" required>
+            </div>
+            <div class="mb-3">
+                <label for="fines" class="form-label">Fines</label>
+                <input type="number" class="form-control" id="fines" name="fines" min="0" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Activity</button>
+        </form>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='bootstrap5.3/js/bootstrap.bundle.min.js') }}"></script>
+
+<script>     //SWEET ALERT script
+    document.addEventListener('DOMContentLoaded', function () {
+        var closeButton = document.querySelector('#myAlert .close');
+        closeButton.addEventListener('click', function () {
+            var alert = document.querySelector('#myAlert');
+            alert.remove();
+        });
+    });</script>
+</body>
+
+</html>

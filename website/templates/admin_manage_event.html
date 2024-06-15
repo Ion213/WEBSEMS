@@ -1,0 +1,289 @@
+{% extends 'admin_base_top_nav.html' %}
+
+{% block title %}
+    MANAGE AN EVENT
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <!-- jinjacode flash message form flask-->
+    {% with messages = get_flashed_messages(with_categories=true)%}
+        {%if messages%}
+            {%for category, message in messages%}
+            <!-- sweet alert error-->
+                {%if category =='manage_event_error'%}
+                    <div id="myAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                <!-- sweet alert success-->
+                {% else %}
+                    <div id="myAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="container mt-5">
+    <h1>Create an Event</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="eventN" class="form-label">Event Name</label>
+            <input type="text" class="form-control" id="eventN" name="eventN" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Add Event</button>
+    </form>
+</div>
+
+
+
+
+<div class="container mt-5">
+
+    <div class="container mt-5">
+        <label for="items-per-page">Items per page:</label>
+        <select id="items-per-page">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+        </select>
+        <label for="sort-by"><i class="fa-solid fa-sort"></i>Sort by:</label>
+        <select id="sort-by">
+            <option value="event_name_asc">Event Name (A-Z)</option>
+            <option value="event_name_desc">Event Name (Z-A)</option>
+            <option value="date_created_asc">Date Created (Oldest first)</option>
+            <option value="date_created_desc">Date Created (Newest first)</option>
+        </select>
+        <br/><br/>
+        <input type="text" id="search" class="form-control" placeholder="&#128269;Search...">
+    </div>
+
+    <div class="table-responsive">
+        <h1>All Events</h1>
+        <table class="table table-bordered table-striped"  id="event_table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date Created (Y/M/D)|hours/min.|</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for all_event_name in all_event_names %}
+                <tr>
+                    <td>{{ all_event_name.event_N }}</td>
+                    <td>{{ all_event_name.date_created}}</td>
+                    <td>
+                        <form method="POST" action="/delete_event/{{ all_event_name.id}}">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')"><i class="fa-solid fa-trash-can"></i>Delete</button>
+                        </form>
+                        
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#update_event_modal" 
+                        onclick="showUpdateDialog('{{ all_event_name.id }}', '{{ all_event_name.event_N }}')"><i class="fa-solid fa-file-pen"></i>Update</button>
+                        
+                        
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="9">
+                <!-- Update the pagination div -->
+                <div id="pagination">
+                    <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-chevron-left"></i></button>
+                    <!-- Display the current page number and total number of pages -->
+                    <span id="page-info"></span>
+                    <button id="next-btn" class="btn btn-secondary"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </th>
+            </tr>
+
+            </tfoot>
+            
+        </table>
+    </div>
+
+
+</div>
+
+<!-- Update Event Modal -->
+<div class="modal fade" id="update_event_modal" tabindex="-1" aria-labelledby="update_event_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="update_event_modal_label">Update Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_event_form" method="POST" action="{{ url_for('admin_manage_event.update_event') }}">
+                    <input type="hidden" id="update_event_id" name="update_event_id">
+                    <div class="mb-3">
+                        <label for="update_event_name" class="form-label">Event Name</label>
+                        <input type="text" class="form-control" id="update_event_name" name="update_event_name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i>Close</button>
+                <button type="button" class="btn btn-primary" id="update_event_button"><i class="fa-solid fa-pen-to-square"></i>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .hidden {
+        display: none;
+    }
+    table {
+        background-color: #631835; /* Light gray color */
+    }
+
+</style>
+
+<script src="{{ url_for('static', filename='jquery3.7.1/jquery-3.7.1.min.js') }}"></script>
+<script>
+     //SWEET ALERT script
+    document.addEventListener('DOMContentLoaded', function () {
+        var closeButton = document.querySelector('#myAlert .close');
+        closeButton.addEventListener('click', function () {
+            var alert = document.querySelector('#myAlert');
+            alert.remove();
+        });
+    });
+
+        // Initialize global variable to store sort criteria
+        var currentSortBy = "event_name_asc";
+
+    $(document).ready(function() {
+           // Initialize variables
+           var itemsPerPage = 5; // Default items per page
+           var currentPage = 0;
+           var rows = $("#event_table tbody tr");
+           var totalRows = rows.length;
+           var totalPages = Math.ceil(totalRows / itemsPerPage);
+   
+           // Show initial set of rows
+           $("#event_table tbody tr").hide();
+           $("#event_table tbody tr").slice(0, itemsPerPage).show();
+   
+           // Update pagination info
+           function updatePaginationInfo() {
+               $("#page-info").text("Page " + (currentPage + 1) + " of " + totalPages);
+           }
+   
+           // Update pagination buttons
+           function updatePaginationButtons() {
+               $("#prev-btn").prop("disabled", currentPage === 0);
+               $("#next-btn").prop("disabled", currentPage === totalPages - 1);
+           }
+   
+           // Update table based on current page
+           function updateTable() {
+               var startIndex = currentPage * itemsPerPage;
+               var endIndex = startIndex + itemsPerPage;
+               rows.hide().slice(startIndex, endIndex).show();
+               updatePaginationInfo();
+               updatePaginationButtons();
+           }
+   
+           // Handle items per page change
+           $("#items-per-page").change(function() {
+               itemsPerPage = parseInt($(this).val());
+               currentPage = 0;
+               totalPages = Math.ceil(totalRows / itemsPerPage);
+               updateTable();
+           });
+   
+           // Handle prev button click
+           $("#prev-btn").click(function() {
+               if (currentPage > 0) {
+                   currentPage--;
+                   updateTable();
+               }
+           });
+   
+           // Handle next button click
+           $("#next-btn").click(function() {
+               if (currentPage < totalPages - 1) {
+                   currentPage++;
+                   updateTable();
+               }
+           });
+   
+           // Initial update of pagination info and buttons
+           updatePaginationInfo();
+           updatePaginationButtons();
+
+        //search
+        $("#search").on("input", function() {
+            var value = $(this).val().toLowerCase();
+            $("#event_table tbody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        //sortby
+         function sortTable() {
+            var sortedRows = $("#event_table tbody tr").get().sort(function(a, b) {
+                var aValue, bValue;
+                if (currentSortBy === "event_name_asc" || currentSortBy === "event_name_desc") {
+                    aValue = $(a).find("td:eq(0)").text().toUpperCase();
+                    bValue = $(b).find("td:eq(0)").text().toUpperCase();
+                } else if (currentSortBy === "date_created_asc" || currentSortBy === "date_created_desc") {
+                    aValue = $(a).find("td:eq(7)").text().toUpperCase();
+                    bValue = $(b).find("td:eq(7)").text().toUpperCase();
+                }
+                if (currentSortBy.includes("desc")) {
+                    return aValue < bValue ? 1 : -1;
+                } else {
+                    return aValue > bValue ? 1 : -1;
+                }
+            });
+            $("#event_table tbody").html(sortedRows);
+            // Your existing code to update pagination and show first page
+        }
+
+        // Set default sorting by event name A-Z
+        sortTable();
+
+        $("#sort-by").change(function() {
+            currentSortBy = $(this).val();
+            sortTable();
+        });
+
+
+    });
+
+    //UPDATE EVENT DIALOG
+        function showUpdateDialog(eventId, eventName) {
+            $("#update_event_id").val(eventId);
+            $("#update_event_name").val(eventName);
+        }
+    
+        $(document).ready(function() {
+            // Handle update event button click
+            $("#update_event_button").click(function() {
+                // Submit the form
+                $("#update_event_form").submit();
+            });
+        });
+
+    
+
+</script>
+{% endblock %}
